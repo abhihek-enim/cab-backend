@@ -24,7 +24,7 @@ module.exports.registerUser = async (req, res, next) => {
     password: hashedPassword,
   });
   const token = user.generateAuthToken();
-  return res.status(201).json({ token, user });
+  return res.status(201).json({ token, user, success: true });
 };
 
 module.exports.loginUser = async (req, res, next) => {
@@ -40,11 +40,13 @@ module.exports.loginUser = async (req, res, next) => {
 
   const isMatch = await user.comparePassword(password);
   if (!isMatch) {
-    return res.status(401).json({ message: "Password incorrect." });
+    return res
+      .status(401)
+      .json({ message: "Password incorrect.", success: false });
   }
   const token = user.generateAuthToken();
   res.cookie("token", token);
-  return res.status(200).json({ token, user });
+  return res.status(200).json({ token, user, success: true });
 };
 
 module.exports.getUserProfile = async (req, res, next) => {

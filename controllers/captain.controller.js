@@ -13,7 +13,9 @@ module.exports.registerCaptain = async (req, res, next) => {
 
   const captainExists = await captainModel.findOne({ email });
   if (captainExists) {
-    return res.status(401).json({ message: "Email already in use." });
+    return res
+      .status(401)
+      .json({ message: "Email already in use.", success: false });
   }
   const hashedPassword = await captainModel.hashPassword(password);
 
@@ -28,7 +30,7 @@ module.exports.registerCaptain = async (req, res, next) => {
     vehicleType: vehicle.vehicleType,
   });
   const token = captain.generateAuthToken();
-  res.status(200).json({ token, captain });
+  res.status(200).json({ token, captain, success: true });
 };
 
 module.exports.loginCaptain = async (req, res, next) => {
@@ -39,11 +41,15 @@ module.exports.loginCaptain = async (req, res, next) => {
   const { email, password } = req.body;
   const captain = await captainModel.findOne({ email }).select("+password");
   if (!captain) {
-    return res.status(404).json({ message: "Captain does not exists." });
+    return res
+      .status(404)
+      .json({ message: "Captain does not exists.", success: false });
   }
   const isMatch = await captain.comparePassword(password);
   if (!isMatch) {
-    return res.status(401).json({ message: "Password incorrect." });
+    return res
+      .status(401)
+      .json({ message: "Password incorrect.", success: false });
   }
   const token = captain.generateAuthToken();
   res.cookie("token", token);
@@ -51,7 +57,7 @@ module.exports.loginCaptain = async (req, res, next) => {
 };
 
 module.exports.getCaptainProfile = async (req, res, next) => {
-  res.status(200).json({ captain: req.captain });
+  res.status(200).json({ captain: req.captain, success: true });
 };
 
 module.exports.logoutCaptain = async (req, res, next) => {
